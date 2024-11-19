@@ -13,36 +13,42 @@ onClickOutside(target, () => {
 const notificationItems = ref([
   {
     route: '#',
-    title: 'Edit your information in a swipe',
+    title: 'Booked Successfully',
     details:
-      'Sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.',
+      'Booking Details',
     time: '12 May, 2025'
   },
   {
     route: '#',
-    title: 'It is a long established fact',
-    details: 'that a reader will be distracted by the readable.',
-    time: '24 Feb, 2025'
+    title: 'Booked Successfully',
+    details:
+      'Booking Details',
+    time: '12 May, 2025'
   },
   {
     route: '#',
-    title: 'There are many variations',
-    details: 'of passages of Lorem Ipsum available, but the majority have suffered',
-    time: '04 Jan, 2025'
+    title: 'Booked Successfully',
+    details:
+      'Booking Details',
+    time: '12 May, 2025'
   },
   {
     route: '#',
-    title: 'There are many variations',
-    details: 'of passages of Lorem Ipsum available, but the majority have suffered',
-    time: '01 Dec, 2024'
-  }
+    title: 'Booked Successfully',
+    details:
+      'Booking Details',
+    time: '12 May, 2025'
+  },
 ])
 </script>
 
 <template>
-  <li class="relative" ref="target">
+
+ 
+  
+  <div class="relative  " ref="target">
     <router-link
-      class="relative flex h-8.5 w-8.5 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
+      class="relative flex h-8.5 w-8.5 z-100  items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
       to="#"
       @click.prevent="(dropdownOpen = !dropdownOpen), (notifying = false)"
     >
@@ -73,8 +79,9 @@ const notificationItems = ref([
     <!-- Dropdown Start -->
     <div
       v-show="dropdownOpen"
-      class="absolute -right-27 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80"
-    >
+      class="absolute -right-27  mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80"
+      style="z-index: 60;"    
+      >
       <div class="px-4.5 py-3">
         <h5 class="text-sm font-medium text-bodydark2">Notification</h5>
       </div>
@@ -98,5 +105,5 @@ const notificationItems = ref([
       </ul>
     </div>
     <!-- Dropdown End -->
-  </li>
+  </div>
 </template>

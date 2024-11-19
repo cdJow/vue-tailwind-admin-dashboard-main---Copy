@@ -12,15 +12,25 @@ import ProfileView from '@/views/ProfileView.vue';
 import TablesView from '@/views/TablesView.vue';
 import AlertsView from '@/views/UiElements/AlertsView.vue';
 import ButtonsView from '@/views/UiElements/ButtonsView.vue';
-
 import LoginFormView from '@/views/LoginFormView.vue';
 import InventoryManagementView from '@/views/InventoryManagementView.vue';
 import AccountsMenuView from '@/views/AccountsMenuView.vue';
-import RoomManagerView from '@/views/RoomManagerView.vue';
+import RoomListView from '@/views/RoomListView.vue';
+import SalesPanelView from '@/views/SalesPanelView.vue';
+import WebAppView from '@/views/WebAppView.vue';
+import AdminSettingsView from '@/views/Pages/AdminSettingsView.vue';
+
 
 const routes = [
+
   {
     path: '/',
+    name: 'Login',
+    component: LoginFormView,
+    meta: { title: 'Login' }
+  },
+  {
+    path: '/Dashboard/DashboardPanel',
     name: 'eCommerce',
     component: ECommerceView,
     meta: { title: 'Woodland' }
@@ -61,6 +71,13 @@ const routes = [
     component: SettingsView,
     meta: { title: 'Settings' }
   },
+
+  {
+    path: '/pages/Adminsettings',
+    name: 'Adminsettings',
+    component: AdminSettingsView,
+    meta: { title: 'Adminsettings' }
+  },
   {
     path: '/charts/basic-chart',
     name: 'basicChart',
@@ -91,12 +108,7 @@ const routes = [
     component: SignupView,
     meta: { title: 'Signup' }
   },
-  {
-    path: '/Login/LoginForm',
-    name: 'Login',
-    component: LoginFormView,
-    meta: { title: 'Login' }
-  },
+
   {
     path: '/Inventory/InventoryManagement',
     name: 'Inventory',
@@ -109,12 +121,29 @@ const routes = [
     component: AccountsMenuView,
     meta: { title: 'Accounts' }
   },
+ 
+
   {
-    path: '/Rooms/RoomManager',
-    name: 'RoomManager',
-    component: RoomManagerView,
-    meta: { title: 'Room Manager' }
-  }
+    path: '/Room/RoomList',
+    name: 'RoomList',
+    component: RoomListView,  
+    meta: { title: 'Room List' }
+  },
+
+  {
+    path: '/Sales/SalesPanel',
+    name: 'SalesPanel',
+    component: SalesPanelView,
+    meta: { title: 'Sales Panel' }
+  },
+
+  {
+    path: '/WebsitePanel/WebApp',
+    name: 'WebApp',
+    component: WebAppView,
+    meta: { title: 'Web App' }
+  },
+ 
 ];
 
 const router = createRouter({

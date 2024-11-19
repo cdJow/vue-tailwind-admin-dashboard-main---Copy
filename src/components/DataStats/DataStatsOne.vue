@@ -30,26 +30,32 @@ export default defineComponent({
 });
 </script>
 <template>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
     <Card
       title="6 rooms"
-      description="Total Available Rooms"
+      description=" Available Rooms"
       class="p-4 text-xs text-green-600"
     />
     <Card
       title="19 Rooms"
-      description="Total Occupied Rooms"
+      description=" Occupied Rooms"
       class="p-4 text-xs text-red"
     />
     <Card
+      
       title="4 Rooms"
-      description="Total Booked Room as of Today"
-      class="p-4 text-xs text-orange-500"
+      description="Booked Rooms"
+      class="p-4 text-xs text-blue-500"
+    />
+    <Card
+      title="4 Rooms"
+      description="Cleaning Rooms "
+      class="p-4 text-xs text-yellow-500"
     />
     <Card
       title="60,000 Php"
       description="Total Sales as of today"
-      class="p-4 text-xs text-blue-600"
+      class="p-4 text-xs text-violet-600"
     />
   </div>
 </template>

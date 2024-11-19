@@ -198,6 +198,21 @@ const toggleModal = () => {
             <label
               class="block text-sm font-medium text-black dark:text-white"
               for="newPassword"
+              >Old Password</label
+            >
+            <input
+              v-model="formData.newPassword"
+              class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-2 md:py-3 px-3 md:px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              type="password"
+              name="newPassword"
+              id="newPassword"
+              placeholder="Enter new password"
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              class="block text-sm font-medium text-black dark:text-white"
+              for="newPassword"
               >New Password</label
             >
             <input
@@ -256,7 +271,7 @@ const toggleModal = () => {
           <h3 class="font-medium text-black dark:text-white">Your Photo</h3>
         </div>
         <div class="p-7">
-          <form @submit.prevent="handlePhotoSubmit">
+          <form @submit.prevent="handlePhotoSubmit">src/components/AdminSettings.vue
             <!-- User Photo Section -->
             <div class="mb-4 flex items-center gap-3">
               <div class="h-14 w-14 rounded-full">
