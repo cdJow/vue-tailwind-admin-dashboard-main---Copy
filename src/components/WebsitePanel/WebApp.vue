@@ -267,19 +267,19 @@ export default defineComponent({
                 @click="openBookingForm(hotel)"
                 class="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition duration-300"
               >
-                Book Now
+                Select Room
               </button>
             </div>
           </div>
         </div>
-      </transition>
+      </transition> 
   
       <!-- Booking Form (Modal) -->
       <div v-if="isBookingFormOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-999">
         <transition name="fade-scale" appear>
           <div class="bg-white rounded-lg shadow-md max-w-[90%] md:w-[30rem] w-full">
             <h2 class="text-lg md:text-xl text-white font-bold mb-4 bg-gradient-to-r from-orange-500 to-red p-6 md:p-9 ">
-              Booking Form
+              Check In Form
             </h2>
             <div class="px-4 md:px-6 lg:px-8 pb-4">
               <form @submit.prevent="submitBooking">
@@ -352,7 +352,7 @@ export default defineComponent({
                   </button>
                   <button type="submit" 
                   class="bg-green-500 text-white rounded-full text-xs w-full h-10 flex items-center justify-center hover:bg-white hover:text-green-500 hover:border-green-500 hover:border-2" 
-                  >Book Now</button>
+                  >Submit</button>
                 </div>
               </form>
             </div>

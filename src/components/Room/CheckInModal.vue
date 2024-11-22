@@ -167,18 +167,34 @@ export default defineComponent({
 
         <!-- Column 2: Invoice Details -->
         <div>
-          <h4 class="font-semibold text-slate-700">Invoice Details</h4>
+        
           <label class="block mt-2">
             Hours to Stay:
-            <input type="number" v-model="invoice.Hours" min="1" class="border rounded p-2 w-full" />
+            <select v-model="invoice.Hours" 
+            class="w-full rounded-lg border-[1.5008px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                
+            >
+              <option value="null" disabled selected>Select hours</option>
+              <option value="6">6 Hours</option>
+              <option value="12">12 Hours</option>
+              <option value="24">24 Hours</option>
+            </select>
           </label>
+          
+          
           <label class="block mt-2">
             Rate per Hour:
-            <input type="number" v-model="invoice.Rate" min="0" class="border rounded p-2 w-full" />
+            <input type="number" v-model="invoice.Rate" min="0" 
+            class="w-full rounded-lg border-[1.5008px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                 
+            />
           </label>
           <label class="block mt-2">
             Additional Charges:
-            <input type="number" v-model="invoice.additionalCharges" min="0" class="border rounded p-2 w-full" />
+            <input type="number" v-model="invoice.additionalCharges" min="0" 
+            class="w-full rounded-lg border-[1.5008px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                 
+            />
           </label>
           <p class="mt-4"><strong>Total: ₱{{ calculateTotal }}</strong></p>
           <p><strong>Check-Out Time: {{ checkOutTime.toLocaleString() }}</strong></p>

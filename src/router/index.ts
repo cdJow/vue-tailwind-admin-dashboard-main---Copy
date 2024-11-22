@@ -20,7 +20,6 @@ import SalesPanelView from '@/views/SalesPanelView.vue';
 import WebAppView from '@/views/WebAppView.vue';
 import AdminSettingsView from '@/views/Pages/AdminSettingsView.vue';
 
-
 const routes = [
 
   {
@@ -143,6 +142,7 @@ const routes = [
     component: WebAppView,
     meta: { title: 'Web App' }
   },
+
  
 ];
 

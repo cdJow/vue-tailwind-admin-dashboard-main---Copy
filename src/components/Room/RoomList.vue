@@ -23,8 +23,7 @@ interface Room {
   checkOutTime?: string; // Added checkOutTime to the Room interface
   bookingDetails: any;
   bookingTime: string;
-  cancelTimer?: number; 
-  timerInterval?: number;
+
   priceRanges?: {
     hours6: number;
     hours12: number;
@@ -350,14 +349,12 @@ const cancelBooking = () => {
 const handleBooking = (data: { fullName: string; phoneNumber: string; email: string; checkOutTime: string }) => {
   console.log('handleBooking called with data:', data);
   if (selectedRoom.value) {
-    const bookingTime = new Date().toISOString();
-    console.log('Booking time:', bookingTime);
-
+   
     selectedRoom.value = { 
       ...selectedRoom.value, 
       ...data, 
       status: 'booked', 
-      bookingTime: bookingTime,
+     
     };
 
     updateRoomList(selectedRoom.value);
@@ -788,7 +785,7 @@ const promptCancelBooking = () => {
         <p v-if="item.status === 'occupied' && item.checkOutTime" class="text-gray-600 bg-red text-white p-2 font-bold  rounded-lg">
           Check-Out Time: {{ formatDate(item.checkOutTime) }}
         </p>
-        <p v-if="item.status === 'booked'" class="text-red">Time remaining: {{ formattedCountdown }} </p>
+        
         
       </div>
     </div>
@@ -878,7 +875,7 @@ const promptCancelBooking = () => {
             <p>Phone Number: {{ selectedRoom?.phoneNumber }}</p>
             <p>Email: {{ selectedRoom?.email }}</p>
             <p>Booked Time: {{ formatDate(selectedRoom?.bookingTime || '') }}</p>
-            <p v-if="isRoomBooked">Time remaining: {{ formattedCountdown }}</p>
+           
           </div>
   
 
@@ -1012,6 +1009,7 @@ const promptCancelBooking = () => {
             >
               Book Room
             </button>
+          
             <button 
             v-if="selectedRoom?.status === 'booked'" 
             @click="showCheckInModal = true" 

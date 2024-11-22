@@ -1,151 +1,189 @@
-<script setup lang="ts">
-import { computed, ref } from 'vue';
+<script lang="ts">
+import { defineComponent, ref, computed } from 'vue';
 import AddSuccessMessage from './AddSuccessMessage.vue';
 
-// Inventory item structure
+
+
 interface InventoryItem {
-  id: string;
+  id: number;
   name: string;
-  quantityOnHand: number;
-  salePrice: number;
-  TotalAmount: number;
-  costPerUnit: number;
+  price: number;
 }
 
-// Sale record structure
-interface SaleRecord {
-  saleId: string;
-  itemId: string;
-  itemName: string;
-  quantitySold: number;
-  salePrice: number;
-  saleDate: string;
-  TotalAmount: number;
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
 }
 
-// Inventory data
-const inventory = ref<InventoryItem[]>([
-  {
-    id: '1', name: 'Item A', quantityOnHand: 100, costPerUnit: 10,
-    salePrice: 0,
-    TotalAmount: 0
+export default defineComponent({
+  name: 'PurchaseForm',
+  components: {
+    AddSuccessMessage, // Register the component
   },
-  {
-    id: '2', name: 'Item B', quantityOnHand: 50, costPerUnit: 20,
-    salePrice: 0,
-    TotalAmount: 0
-  },
-  
+  setup() {
+  const inventory = ref<InventoryItem[]>([
+    { id: 1, name: 'Risus Fringilla', price: 35.0 },
+    { id: 2, name: 'Commodo Fusce', price: 35.0 },
+    { id: 3, name: 'Lorem Pharetra', price: 35.0 },
+    // Add more items here as per your inventory
+  ]);
 
-  
-  // Add more items as needed
-]);
+  const showSuccessMessage = ref(false);
+  const currentPage = ref<number>(1);
+  const itemsPerPage = ref<number>(10);  // Number of items per page
+  const totalItems = ref<number>(100);   // Total number of items (can be fetched from an API)
 
-// Sales records data
-const salesRecords = ref<SaleRecord[]>([]);
-
-// Form data for recording a sale
-const saleForm = ref({
-  itemId: '',
-  itemName: '',
-  quantitySold: 0,
-  salePrice: 0,
-  TotalAmount: 0,
-  saleDate: new Date().toISOString().split('T')[0], // Default to today’s date
-});
-
-// Show or hide the modal
-const showModal = ref(false);
-
-// Show or hide the success message
-const showSuccessMessage = ref(false);
-
-function recordSale() {
-  salesRecords.value.push({
-    saleId: Math.random().toString(), // Generate a random sale ID
-    itemId: saleForm.value.itemId,
-    itemName: inventory.value.find(item => item.id === saleForm.value.itemId)!.name,
-    quantitySold: saleForm.value.quantitySold,
-    salePrice: saleForm.value.salePrice,
-    saleDate: saleForm.value.saleDate, // Use the formatted date
-    TotalAmount: 0
+  // Computed property for the total number of pages
+  const totalPages = computed(() => {
+    return Math.ceil(totalItems.value / itemsPerPage.value);
   });
 
-  // Reset the sale form
-  saleForm.value = {
-    itemId: '',
-    itemName: '',
-    quantitySold: 0,
-    salePrice: 0,
-    TotalAmount: 0,
-    saleDate: new Date().toLocaleDateString()
+  // Function to go to the previous page
+  const prevPage = () => {
+    if (currentPage.value > 1) {
+      currentPage.value--;
+    }
   };
 
-  clearForm();
+  // Function to go to the next page
+  const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+      currentPage.value++;
+    }
+  };
 
-  // Close the modal
-  showModal.value = false;
+  const items = ref<CartItem[]>([]);
+  const discount = ref<number>(0);
+  const selectedInventoryItem = ref<number | null>(null);
 
-  // Show the success message
+  // Add selected inventory item to the list
+  const addItemToList = () => {
+    if (selectedInventoryItem.value) {
+      const inventoryItem = inventory.value.find(item => item.id === selectedInventoryItem.value);
+      if (inventoryItem) {
+        items.value.push({
+          id: inventoryItem.id,
+          name: inventoryItem.name,
+          price: inventoryItem.price,
+          quantity: 1, // Default quantity
+        });
+      }
+    }
+    selectedInventoryItem.value = null; // Reset selection
+  };
+
+  // Remove Item from Cart
+  const removeItem = (index: number) => {
+    items.value.splice(index, 1);
+  };
+
+  // Update Item Quantity
+  const updateQuantity = (index: number, change: number) => {
+    const newQuantity = items.value[index].quantity + change;
+    if (newQuantity >= 1) {
+      items.value[index].quantity = newQuantity;
+    }
+  };
+
+  // Subtotal calculation
+  const subTotal = computed(() => {
+    return items.value.reduce((total, item) => total + item.price * item.quantity, 0);
+  });
+
+  // Tax calculation (1.5% of Subtotal)
+  const tax = computed(() => {
+    return subTotal.value * 0.015;
+  });
+
+  // Total calculation (after discount and tax)
+  const total = computed(() => {
+    const discountAmount = (subTotal.value * discount.value) / 100;
+    return subTotal.value - discountAmount + tax.value;
+  });
+
+  // Sales records data (paginated records)
+  const salesRecords = ref<any[]>([]);
+
+  const formRef = ref<HTMLElement | null>(null); // Type `formRef` as HTMLElement
+
+  const confirmPayment = () => {
+  alert('Payment Confirmed');
   showSuccessMessage.value = true;
 
-  // Hide the success message after 3 seconds
+  // Create a new sale record with detailed product breakdown
+  const newSale = {
+    saleId: salesRecords.value.length + 1,
+    items: items.value.map(item => ({
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      total: (item.price * item.quantity).toFixed(2),
+    })),
+    totalAmount: total.value.toFixed(2),
+    saleDate: new Date().toLocaleDateString(),
+  };
+
+  // Reset form and reactive data
+  if (formRef.value && formRef.value instanceof HTMLFormElement) {
+    formRef.value.reset();
+  }
+  items.value = [];
+  discount.value = 0;
+  selectedInventoryItem.value = null;
+
+  salesRecords.value.unshift(newSale);
+
   setTimeout(() => {
     showSuccessMessage.value = false;
   }, 3000);
-}
+};
 
-// Clear the sale form
-function clearForm() {
-  saleForm.value = {
-    itemId: '',
-    itemName: '',
-    quantitySold: 0,
-    salePrice: 0,
-    TotalAmount: 0,
-    saleDate: new Date().toISOString().split('T')[0], // Reset to today’s date
+
+
+const record = ref({
+      saleDate: '',
+      totalAmount: 0,
+      items: []
+    })
+
+  // Paginated sales records
+  const paginatedSalesRecords = computed(() => {
+    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+    return salesRecords.value.slice(startIndex, startIndex + itemsPerPage.value);
+  });
+
+  return {
+    inventory,
+    items,
+    discount,
+    selectedInventoryItem,
+    subTotal,
+    tax,
+    total,
+    addItemToList,
+    removeItem,
+    updateQuantity,
+    confirmPayment,
+    currentPage,
+    totalPages,
+    prevPage,
+    nextPage,
+    showSuccessMessage,
+    salesRecords,
+    paginatedSalesRecords,
+    formRef,
+    record,
   };
 }
 
-
-// Pagination variables
-const currentPage = ref(1);
-const rowsPerPage = 8;
-
-// Calculate total pages
-const totalPages = computed(() => Math.ceil(salesRecords.value.length / rowsPerPage));
-
-// Paginated sales records based on the current page
-const paginatedSalesRecords = computed(() => {
-  const start = (currentPage.value - 1) * rowsPerPage;
-  const end = start + rowsPerPage;
-  return salesRecords.value.slice(start, end);
 });
-
-// Navigate to the next page
-function nextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-}
-
-// Navigate to the previous page
-function prevPage() {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-}
-
-
-// Get the current date and time
-const currentTime = ref(new Date());
-
-// Update the current time every second
-setInterval(() => {
-  currentTime.value = new Date();
-}, 1000);
 </script>
 
+<style scoped>
+/* Add custom styles if needed */
+</style>
 
 <template>
   <AddSuccessMessage v-if="showSuccessMessage" />
@@ -154,89 +192,121 @@ setInterval(() => {
 
 
     <!-- Sale Form Modal -->
-    <div class="col-span-1 md:col-span-3">
-      <div class="bg-white rounded-lg shadow-lg">
-        <h1 class="text-xl font-semibold bg-orange-500 text-white p-6 mb-2">Purchase Form</h1>
-        <div class="pb-6 pl-6 pr-6">
-          <form @submit.prevent="recordSale">
-            <div v-for="(item, index) in saleForm.items" :key="index" class="mb-4 border-b pb-4">
-              <label :for="'itemId-' + index" class="block mb-2">Item:</label>
-              <select
-                v-model="item.itemId"
-                :id="'itemId-' + index"
-                required
-                class="w-full rounded-lg border text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary"
-              >
-                <option value="" disabled>Select an item</option>
-                <option v-for="inventoryItem in inventory" :key="inventoryItem.id" :value="inventoryItem.id">
-                  {{ inventoryItem.name }}
-                </option>
-              </select>
-  
-              <label :for="'quantitySold-' + index" class="block mt-4 mb-2">Quantity Sold:</label>
-              <input
-                type="number"
-                v-model.number="item.quantitySold"
-                :id="'quantitySold-' + index"
-                required
-                class="w-full rounded-lg border text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary"
-                placeholder="Quantity"
-              />
-  
-              <label :for="'salePrice-' + index" class="block mt-4 mb-2">Sale Price per Unit:</label>
-              <input
-                type="number"
-                v-model.number="item.salePrice"
-                :id="'salePrice-' + index"
-                required
-                class="w-full rounded-lg border text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary"
-                placeholder="Sale Price"
-              />
-  
-              <div class="flex justify-end mt-2">
-                <button
-                  type="button"
-                  @click="removeItem(index)"
-                  class="text-red-500 text-xs underline hover:text-red-700"
-                >
-                  Remove Item
-                </button>
-              </div>
-            </div>
-  
-            <button
-              type="button"
-              @click="addItem"
-              class="w-full bg-blue-500 text-white py-2 rounded-lg mb-4 hover:bg-blue-600"
-            >
-              Add Another Item
-            </button>
-  
-            <label class="block mt-4 border-t-2 border-slate-200 pt-2">Date: {{ currentTime.toLocaleString() }}</label>
-  
-            <div class="flex justify-end gap-2 mt-4">
-              <button
-                type="button"
-                @click="clearForm"
-                class="bg-red text-white rounded-full text-xs w-1/2 h-10 flex items-center justify-center hover:bg-white hover:text-red hover:border-red hover:border-2"
-              >
-                Clear
-              </button>
-              <button
-                type="submit"
-                class="bg-green-500 text-white rounded-full text-xs w-1/2 h-10 flex items-center justify-center hover:bg-white hover:text-green-500 hover:border-green-500 hover:border-2"
-              >
-                Confirm
-              </button>
-            </div>
-          </form>
+   <div class="col-span-1 md:col-span-3">
+    <div class="bg-white rounded-lg shadow-lg">
+      <h1 class="text-xl font-semibold bg-orange-500 text-white p-6 mb-2">Purchase Form</h1>
+
+      <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
+        <!-- Item List -->
+        <div 
+        v-for="(item, index) in items" 
+        :key="index" 
+        class="grid grid-cols-4 items-center justify-between gap-4 mb-4 border-b border-slate-200 pb-4"
+      >
+        <!-- Item Name -->
+        <div class="col-span-1">
+          <span class="font-xs break-words whitespace-normal">{{ item.name }}</span>
+        </div>
+      
+    
+        <div class="col-span-1 flex justify-center">
+          <button @click="removeItem(index)" class="text-red text-sm hover:text-red">
+            <i class="fa fa-trash-alt">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18px" height="18px" fill="red">
+                <path
+                  d="M 10 2 L 9 3 L 5 3 C 4.4 3 4 3.4 4 4 C 4 4.6 4.4 5 5 5 L 7 5 L 17 5 L 19 5 C 19.6 5 20 4.6 20 4 C 20 3.4 19.6 3 19 3 L 15 3 L 14 2 L 10 2 z M 5 7 L 5 20 C 5 21.1 5.9 22 7 22 L 17 22 C 18.1 22 19 21.1 19 20 L 19 7 L 5 7 z M 9 9 C 9.6 9 10 9.4 10 10 L 10 19 C 10 19.6 9.6 20 9 20 C 8.4 20 8 19.6 8 19 L 8 10 C 8 9.4 8.4 9 9 9 z M 15 9 C 15.6 9 16 9.4 16 10 L 16 19 C 16 19.6 15.6 20 15 20 C 14.4 20 14 19.6 14 19 L 14 10 C 14 9.4 14.4 9 15 9 z" 
+                />
+              </svg>
+            </i>
+          </button>
+        </div>
+      
+        
+        <div class="col-span-1 flex items-center space-x-4 justify-center">
+          <button @click="updateQuantity(index, -1)" class="text-sm text-slate-600 hover:text-slate-800">
+            -
+          </button>
+          <span class="text-lg">{{ item.quantity }}</span>
+          <button @click="updateQuantity(index, 1)" class="text-sm text-slate-600 hover:text-slate-800">
+            +
+          </button>
+        </div>
+      
+        <!-- Total Price -->
+        <div class="col-span-1 text-right">
+          <span class="font-xs">${{ (item.price * item.quantity).toFixed(2) }}</span>
+        </div>
+      </div>
+      
+        <!-- Add New Item from Inventory -->
+        <div class="mb-4 flex items-center space-x-4">
+
+          <select
+            id="addItem"
+            v-model="selectedInventoryItem"
+            class="w-full rounded-lg py-2 px-4 border border-slate-300 focus:outline-none"
+            :disabled="!inventory.length"
+          >
+            <option value="" disabled>Select an item</option>
+            <option v-for="item in inventory" :key="item.id" :value="item.id">
+              {{ item.name }} -  ₱{{ item.price }}
+            </option>
+          </select>
+          <button
+          @click="addItemToList"
+          :disabled="!selectedInventoryItem"
+          class="bg-blue-500 text-xs text-white py-2 px-5 rounded-lg hover:bg-blue-600 whitespace-nowrap"
+        >
+          Add Item
+        </button>
+        
+        </div>
+
+        <!-- Discount Section -->
+        <div class="flex justify-between items-center mt-4 border-t pt-4">
+          <label for="discount" class="text-gray-700">Discount (%)</label>
+          <input
+            type="number"
+            id="discount"
+            v-model.number="discount"
+            class="w-1/2 rounded-lg py-2 px-4 border border-gray-300 focus:outline-none"
+            placeholder="Enter discount"
+            min="0"
+            max="100"
+          />
+        </div>
+
+        <!-- Sub Total, Tax, Total -->
+        <div class="mt-4">
+          <div class="flex justify-between">
+            <span class="font-semibold">Sub Total</span>
+            <span class="font-semibold"> ₱{{ subTotal.toFixed(2) }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-semibold">Tax 1.5%</span>
+            <span class="font-semibold"> ₱{{ tax.toFixed(2) }}</span>
+          </div>
+          <div class="flex justify-between mt-4 border-t pt-2">
+            <span class="font-semibold text-lg">Total</span>
+            <span class="font-semibold text-lg"> ₱{{ total.toFixed(2) }}</span>
+          </div>
+        </div>
+
+        <!-- Pay Button -->
+        <div class="mt-6 flex justify-center">
+          <button
+            @click="confirmPayment"
+            class="bg-green-500 text-white py-2 px-8 rounded-full hover:bg-green-600"
+          >
+            Pay ( ₱{{ total.toFixed(2) }})
+          </button>
         </div>
       </div>
     </div>
-    
+  </div>
 
     <!-- Sales Records Table -->
-    <div class="col-span-1 md:col-span-7 w-full">
+    <div class="col-span-1 md:col-span-7 w-full ">
   <div class="bg-white rounded-lg shadow-md ">
     <div class="font-semibold bg-orange-500 w-full text-white p-5 mb-2">
           <div class="flex flex-col md:flex-row justify-between items-center ">
@@ -288,28 +358,80 @@ setInterval(() => {
           </button>
         </div>
 
-        <div class="sales-records p-4 overflow-auto">
-          <table class="min-w-full bg-white rounded-lg shadow-sm">
+        <div class="sales-records p-4 ">
+          <table class="min-w-full bg-white rounded-lg shadow-sm overflow-auto">
             <thead>
               <tr class="bg-slate-100 text-slate-700">
                 <th class="py-2 px-4 text-left font-medium">Sale ID</th>
                 <th class="py-2 px-4 text-center font-medium">Items</th>
                 <th class="py-2 px-4 text-center font-medium">Quantity Sold</th>
                 <th class="py-2 px-4 text-center font-medium">Sale Price</th>
+                <th class="py-2 px-4 text-center font-medium"> Amount</th>
                 <th class="py-2 px-4 text-center font-medium">Total Amount</th>
                 <th class="py-2 px-4 text-center font-medium">Date</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="record in paginatedSalesRecords" :key="record.saleId" class="hover:bg-slate-50 text-slate-800">
-                <td class="py-2 px-4 text-left">{{ record.saleId }}</td>
-                <td class="py-2 px-4 text-center">{{ record.itemName }}</td>
-                <td class="py-2 px-4 text-center">{{ record.quantitySold }}</td>
-                <td class="py-2 px-4 text-center">₱ {{ record.salePrice }}</td>
-                <td class="py-2 px-4 text-center bg-green-500 border-white border-2 text-white">₱ {{ record.TotalAmount }}</td>
-                <td class="py-2 px-4 text-center">{{ record.saleDate }}</td>
+              <tr
+                v-for="(record, recordIndex) in paginatedSalesRecords"
+                :key="record.saleId"
+                class="hover:bg-slate-50 text-slate-800 border-b border-slate-300"
+              >
+                <td class="py-2 px-4 text-left align-top">{{ record.saleId }}</td>
+                <td class="py-2 px-4 text-left align-top">
+                  <ul>
+                    <li
+                      v-for="(item, itemIndex) in record.items"
+                      :key="`${recordIndex}-${itemIndex}`"
+                      class="text-left"
+                    >
+                      {{ item.name }}
+                    </li>
+                  </ul>
+                </td>
+                <td class="py-2 px-4 text-center align-top">
+                  <ul>
+                    <li
+                      v-for="(item, itemIndex) in record.items"
+                      :key="`${recordIndex}-${itemIndex}`"
+                      class="text-center"
+                    >
+                      {{ item.quantity }}
+                    </li>
+                  </ul>
+                </td>
+                <td class="py-2 px-4 text-center align-top">
+                  <ul>
+                    <li
+                      v-for="(item, itemIndex) in record.items"
+                      :key="`${recordIndex}-${itemIndex}`"
+                      class="text-center"
+                    >
+                      ₱ {{ item.price.toFixed(2) }}
+                    </li>
+                  </ul>
+                </td>
+                <td class="py-2 px-4 text-center align-top">
+                  <ul>
+                    <li
+                      v-for="(item, itemIndex) in record.items"
+                      :key="`${recordIndex}-${itemIndex}`"
+                      class="text-center"
+                    >
+                      ₱ {{ item.total }}
+                    </li>
+                  </ul>
+                </td>
+                <td class="py-2 px-4 text-center text-green-800 font-bold bg-green-100">
+                 ₱ {{ record.totalAmount }}
+                </td>
+                <td class="py-2 px-4 text-center">
+                  {{ record.saleDate }}
+                </td>
               </tr>
+            
             </tbody>
+            
           </table>
         </div>
       </div>
